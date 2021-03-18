@@ -84,8 +84,11 @@ class ProfileExtensions
                     if (is_multisite() && is_super_admin($user_id)) {
                         grant_super_admin($user_id);
                     }
-
-                    wp_set_auth_cookie( $user_id );
+                    wp_cache_delete($user_id, 'users');
+                    wp_cache_delete($old_user_login, 'userlogins'); // maybe unnecessary?
+                    wp_set_auth_cookie($user_id);
+                    wp_set_current_user( $user_id, $new_user_login );
+                    do_action('wp_login', $new_user_login, $user);
                 }
 
                 //we may also need to update the contact name in Xero
