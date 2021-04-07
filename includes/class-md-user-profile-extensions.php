@@ -17,17 +17,31 @@ class ProfileExtensions
      */
     public function __construct()
     {
-        add_action('output_user_name_field', [$this, 'frontend_username_field'], 10);
+        add_action('init', [$this, 'init'], 10, 3);
         add_action('user_profile_update_errors', [$this, 'validate_username_update'], 10, 3);
     }
 
-    public function frontend_username_field($userdata)
+    public function init(){
+      if ( current_user_can('manage_options') ) {
+          add_action( 'show_user_profile', [ $this, 'update_username_field' ], 9999 );
+          add_action( 'edit_user_profile', [ $this, 'update_username_field' ], 9999 );
+      }
+    }
+
+    public function update_username_field($userdata)
     {
         ?>
-            <p>
-                <label for="first_name">User Name</label>
-                <input type="text" name="user_login" id="user_login" class="text regular-text" value="<?php echo esc_attr($userdata->user_login);  ?>" />
-            </p>
+        <h2>Update User Name</h2>
+        <table class="form-table">
+            <tbody>
+                <tr class="user-comment-shortcuts-wrap">
+                    <th scope="row"><label for="user_login">User Name</label></th>
+                    <td>
+                        <input type="text" name="user_login" id="user_login" class="text regular-text" value="<?php echo esc_attr($userdata->user_login);  ?>" />
+                    </td>
+                </tr>
+            </tbody>
+        </table>
         <?php
     }
 
@@ -84,11 +98,6 @@ class ProfileExtensions
                     if (is_multisite() && is_super_admin($user_id)) {
                         grant_super_admin($user_id);
                     }
-                    wp_cache_delete($user_id, 'users');
-                    wp_cache_delete($old_user_login, 'userlogins'); // maybe unnecessary?
-                    wp_set_auth_cookie($user_id);
-                    wp_set_current_user( $user_id, $new_user_login );
-                    do_action('wp_login', $new_user_login, $user);
                 }
 
                 //we may also need to update the contact name in Xero
@@ -97,7 +106,7 @@ class ProfileExtensions
                 }
 
             }
-        } 
+        }
     }
 }
 
