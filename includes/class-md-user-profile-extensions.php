@@ -62,7 +62,7 @@ class ProfileExtensions
             if ($new_user_login !== $old_user_login) {
                 $another_user_has_user_login = username_exists($new_user_login);
                 if ($another_user_has_user_login) {
-                    $errors->add('user_login', '<strong>ERROR</strong>: You can\'t change you username to ' . $new_user_login . ', another user is using that username.');
+                    $errors->add('user_login', '<strong>ERROR</strong>: You can\'t change your username to ' . $new_user_login . ', another user is using that username.');
                     return;
                 }
 
@@ -72,7 +72,11 @@ class ProfileExtensions
                     $xero_contact_exists = AXI_User_Validation::check_if_xero_contact_exists($new_user_login);
                     //check if there is Xero Contact with the desired name
                     if ($xero_contact_exists) {
-                        $errors->add('user_login', '<strong>ERROR</strong>: You can\'t change you username to ' . $new_user_login . ', another user is using that username.');
+                        $message = '<strong>ERROR</strong>: You can\'t change your username to ' . $new_user_login . ', another user is using that username.';
+                        if(current_user_can( 'manage_options' )){
+                            $message = '<strong>ERROR</strong>: You can\'t change this user\'s username to <strong>' . $new_user_login . '</strong>, there is an existing Xero Contact using that name.';
+                        }
+                        $errors->add('user_login', $message);
                         return;
                     }
                 }
